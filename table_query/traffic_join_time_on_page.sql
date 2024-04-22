@@ -40,7 +40,7 @@ SELECT
   event_name LIKE '%view_item'
   OR event_name LIKE '%add_to_cart%'
   OR event_name LIKE '%begin_check%'
-  OR event_name LIKE '%select_items%'
+  OR event_name LIKE '%select_item%'
   OR event_name LIKE '%add%'
   OR event_name LIKE '%select_promo%'
   OR event_name LIKE '%purchase%'
@@ -90,8 +90,31 @@ WHERE
   AND event_params.key = 'engagement_time_msec'
 GROUP BY ALL 
 ORDER BY time_on_page, time_on_session DESC 
+),
+engagement AS (
+  SELECT
+    event_date,
+    user_pseudo_id AS user_id,
+    (
+      SELECT
+        value.string_value
+      FROM
+        UNNEST(event_params)
+      WHERE
+        key = 'session_engaged'
+    ) AS session_engaged
+  FROM
+    `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
+  WHERE
+    event_date BETWEEN '20200101' AND '20211231'
+    AND event_name = 'first_visit' -- Assuming 'first_visit' event indicates session engagement
+  GROUP BY 1, 2, 3
 )
+
 /* JOIN MODE */ 
-SELECT t.*, p.time_on_page, p.time_on_session 
+SELECT t.*, p.time_on_page, p.time_on_session,
+ROUND(100 * COUNT(e.user_id) / COUNT(DISTINCT t.user_id), 2) AS engagement_rate
 FROM traffic t 
 LEFT JOIN time_on_page p ON t.event_date = p.event_date AND t.Session_id = p.session_id AND t.Page_location = p.page_location 
+LEFT JOIN engagement e ON t.event_date = e.event_date AND t.user_id = e.user_id
+GROUP BY ALL
