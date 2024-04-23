@@ -1,6 +1,10 @@
+WITH count AS (
 SELECT
   event_date,
   COUNTIF(event_name = 'page_view') as page_view
   FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
   GROUP BY 1
   ORDER BY 2 DESC 
+)
+SELECT sum(page_view)
+FROM count 
