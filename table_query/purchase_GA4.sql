@@ -1,7 +1,7 @@
 SELECT
   event_date,
   user_pseudo_id AS user_id,
-  traffic_source.name AS traffic_name,
+  traffic_source.source ||"/"|| traffic_source.medium AS traffic_name,
   traffic_source.source AS traffic_source,
   traffic_source.medium AS traffic_medium,
   device.category AS device_category,
