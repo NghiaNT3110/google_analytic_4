@@ -1,1 +1,1 @@
-This is the folder save SQL files about metric queries check compare to GA4 Web
+This folder contains saved SQL files for metric queries to compare with GA4 Web data
