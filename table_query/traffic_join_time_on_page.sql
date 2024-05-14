@@ -65,8 +65,6 @@ COUNTIF(event_name ='purchase') AS purchase,
 COUNTIF(event_name ='first_visit') AS new_user 
 FROM
   `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
-WHERE
-  event_date BETWEEN '20200101' AND '20211231'
 GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,15,16 
 ORDER BY purchase DESC
 ),
@@ -92,29 +90,30 @@ GROUP BY ALL
 ORDER BY time_on_page, time_on_session DESC 
 ),
 engagement AS (
-  SELECT
+  select
     event_date,
-    user_pseudo_id AS user_id,
-    (
-      SELECT
-        value.string_value
-      FROM
-        UNNEST(event_params)
-      WHERE
-        key = 'session_engaged'
-    ) AS session_engaged
+    (SELECT value.string_value
+    FROM
+      UNNEST (event_params)
+    WHERE
+      key='page_location'
+  ) as `Page_location`,
+   case when (select value.string_value from unnest(event_params) where key = 'session_engaged') >= '1' 
+   then (select value.int_value from unnest(event_params) where key = 'ga_session_id')
+   end as engaged_sessions,
+   case when (select value.string_value from unnest(event_params) where key = 'session_engaged') >= '1' 
+   then (select user_pseudo_id)
+   end as engaged_user
   FROM
     `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
-  WHERE
-    event_date BETWEEN '20200101' AND '20211231'
-    AND event_name = 'first_visit' -- Assuming 'first_visit' event indicates session engagement
-  GROUP BY 1, 2, 3
+  GROUP BY 1, 2, 3,4
 )
 
 /* JOIN MODE */ 
 SELECT t.*, p.time_on_page, p.time_on_session,
-ROUND(100 * COUNT(e.user_id) / COUNT(DISTINCT t.user_id), 2) AS engagement_rate
+ROUND(100 * COUNT(DISTINCT e.engaged_sessions) / COUNT(DISTINCT t.Session_id), 2) AS engagement_rate,
+100 - ROUND(100 * COUNT(DISTINCT e.engaged_sessions) / COUNT(DISTINCT t.Session_id), 2) AS bounce_rate
 FROM traffic t 
 LEFT JOIN time_on_page p ON t.event_date = p.event_date AND t.Session_id = p.session_id AND t.Page_location = p.page_location 
-LEFT JOIN engagement e ON t.event_date = e.event_date AND t.user_id = e.user_id
+LEFT JOIN engagement e ON t.event_date = e.event_date AND t.user_id = e.engaged_user AND t.Session_id = e.engaged_sessions
 GROUP BY ALL
