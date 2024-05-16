@@ -1,1 +1,1 @@
-This folder contains SQL files for querying tables required for analytics and visualization purposes
+This folder contains SQL files for querying tables required for analytics and visualization purposes (Still Updating with these metrics: time on page, time on session, engagement rate when joining with the traffic table)
