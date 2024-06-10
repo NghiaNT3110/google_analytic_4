@@ -1,6 +1,26 @@
 SELECT
   event_date,
   user_pseudo_id AS user_id,
+  (
+    SELECT
+      value.int_value
+    FROM
+      UNNEST (event_params)
+    WHERE
+      key='ga_session_id'
+  ) as `Session_id`,
+  (SELECT value.string_value
+    FROM
+      UNNEST (event_params)
+    WHERE
+      key='page_title'
+  ) as `Page_title`,
+  (SELECT value.string_value
+    FROM
+      UNNEST (event_params)
+    WHERE
+      key='page_location'
+  ) as `Page_location`,
   traffic_source.source ||"/"|| traffic_source.medium AS traffic_name,
   traffic_source.source AS traffic_source,
   traffic_source.medium AS traffic_medium,
