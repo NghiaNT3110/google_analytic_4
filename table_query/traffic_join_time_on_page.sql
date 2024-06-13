@@ -1,4 +1,4 @@
-WITH traffic AS(
+WITH traffic AS (
 SELECT
   event_date,
   user_pseudo_id AS user_id,
@@ -23,6 +23,13 @@ SELECT
       key='ga_session_id'
   ) as `Session_id`,
 
+  /* Mark Engaged Session ID */ 
+  CASE WHEN 
+    (select value.string_value from unnest(event_params) where key = 'session_engaged') = '1' 
+    THEN (select value.int_value from unnest(event_params) where key = 'ga_session_id')
+    ELSE NULL
+    END AS session_engaged_id,
+
   traffic_source.source ||"/"|| traffic_source.medium AS traffic_name,
   traffic_source.source AS traffic_source,
   traffic_source.medium AS traffic_medium,
@@ -30,12 +37,8 @@ SELECT
   device.web_info.browser AS browser,
   geo.country, geo.city,
   event_name,
-
-  CASE WHEN 
-    event_name = 'first_visit' THEN 'New User'
-    ELSE 'Return User'
-    END AS user_type, 
-
+  
+/* Mark Conversion Event is TRUE */ 
   CASE WHEN 
   event_name LIKE '%view_item'
   OR event_name LIKE '%add_to_cart%'
@@ -52,68 +55,37 @@ SELECT
     event_name = 'purchase' THEN ecommerce.transaction_id 
     ELSE NULL 
     END AS transaction_ID,
-COUNTIF(event_name ='page_view') AS page_view,
-COUNTIF(event_name ='view_item') AS view_item,
-COUNTIF(event_name ='view_promotion') AS view_promotion,
-COUNTIF(event_name ='add_to_cart') AS add_to_cart,
-COUNTIF(event_name ='begin_checkout') AS begin_checkout,
-COUNTIF(event_name ='select_item') AS select_item,
-COUNTIF(event_name ='add_shipping_info') AS add_shipping_info,
-COUNTIF(event_name ='add_payment_info') AS add_payment_info,
-COUNTIF(event_name ='select_promotion') AS select_promotion,
-COUNTIF(event_name ='purchase') AS purchase,
-COUNTIF(event_name ='first_visit') AS new_user 
+  COUNTIF(event_name ='page_view') AS page_view,
 FROM
-  `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
-GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,15,16 
-ORDER BY purchase DESC
+  `big-query-378507.analytics_402516150.events_*`
+GROUP BY ALL 
+ORDER BY page_view DESC
 ),
 time_on_page AS (
-SELECT
-  event_date,
-  user_pseudo_id AS user_id,
-  ga_session_id.value.int_value as session_id,
-  page_location.value.string_value AS page_location,
-  AVG(event_params.value.int_value)/1000 AS time_on_page,
-  TIMESTAMP_DIFF(TIMESTAMP_MICROS(MAX(event_timestamp)), TIMESTAMP_MICROS(MIN(event_timestamp)), SECOND) as time_on_session 
-FROM
-  `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
-  UNNEST (event_params) as ga_session_id,
-  UNNEST(event_params) AS page_location,
-  UNNEST(event_params) AS event_params
-  
-WHERE
-  page_location.key = 'page_location' 
-  AND ga_session_id.key = 'ga_session_id' 
-  AND event_params.key = 'engagement_time_msec'
-GROUP BY ALL 
-ORDER BY time_on_page, time_on_session DESC 
-),
-engagement AS (
   select
-    event_date,
+    event_date, 
+    user_pseudo_id,
     (SELECT value.string_value
     FROM
       UNNEST (event_params)
     WHERE
       key='page_location'
   ) as `Page_location`,
-   case when (select value.string_value from unnest(event_params) where key = 'session_engaged') >= '1' 
-   then (select value.int_value from unnest(event_params) where key = 'ga_session_id')
-   end as engaged_sessions,
-   case when (select value.string_value from unnest(event_params) where key = 'session_engaged') >= '1' 
-   then (select user_pseudo_id)
-   end as engaged_user
-  FROM
-    `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
-  GROUP BY 1, 2, 3,4
+    (select value.int_value from unnest(event_params) where key = 'ga_session_id') as session_id,
+    sum((select value.int_value from unnest(event_params) where key = 'engagement_time_msec'))/1000 as time_on_page,
+     (max(event_timestamp)-min(event_timestamp))/1000000 as time_on_session
+from
+   `big-query-378507.analytics_402516150.events_*`
+group by
+    event_date,
+    user_pseudo_id,
+    Page_location,
+    session_id
 )
-
-/* JOIN MODE */ 
-SELECT t.*, p.time_on_page, p.time_on_session,
-ROUND(100 * COUNT(DISTINCT e.engaged_sessions) / COUNT(DISTINCT t.Session_id), 2) AS engagement_rate,
-100 - ROUND(100 * COUNT(DISTINCT e.engaged_sessions) / COUNT(DISTINCT t.Session_id), 2) AS bounce_rate
-FROM traffic t 
-LEFT JOIN time_on_page p ON t.event_date = p.event_date AND t.Session_id = p.session_id AND t.Page_location = p.page_location 
-LEFT JOIN engagement e ON t.event_date = e.event_date AND t.user_id = e.engaged_user AND t.Session_id = e.engaged_sessions
+SELECT t.*, p.time_on_page, p.time_on_session, 
+ROUND(100 * COUNT(DISTINCT t.session_engaged_id) / COUNT(DISTINCT t.Session_id), 2) AS engagement_rate,
+100 - ROUND(100 * COUNT(DISTINCT t.session_engaged_id) / COUNT(DISTINCT t.Session_id), 2) AS bounce_rate
+FROM traffic t
+LEFT JOIN time_on_page p ON t.Session_id = p.session_id AND t.Page_location = p.Page_location AND t.event_date = p.event_date 
 GROUP BY ALL
+ORDER BY t.page_view DESC 
