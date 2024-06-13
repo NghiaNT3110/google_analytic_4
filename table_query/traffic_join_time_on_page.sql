@@ -75,7 +75,7 @@ time_on_page AS (
     sum((select value.int_value from unnest(event_params) where key = 'engagement_time_msec'))/1000 as time_on_page,
      (max(event_timestamp)-min(event_timestamp))/1000000 as time_on_session
 from
-   `big-query-378507.analytics_402516150.events_*`
+   `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
 group by
     event_date,
     user_pseudo_id,
