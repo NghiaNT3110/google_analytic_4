@@ -40,5 +40,5 @@ SELECT
   ELSE 'FALSE' 
   END AS is_conversion,
   FROM
-  `big-query-378507.analytics_402516150.events_*`
+  `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
   ORDER BY event_date DESC
