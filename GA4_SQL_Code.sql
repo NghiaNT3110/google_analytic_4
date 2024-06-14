@@ -1,3 +1,4 @@
+/* This is a prototype SQL code for the query process in GA4 */ 
 SELECT
   event_date,
   ga_session_id.value.int_value as session_id,/* Select data type for GA session ID */ 
