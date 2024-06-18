@@ -6,3 +6,5 @@
 - Discrepancy between Big Query & GA4 Data: [Discrepancy between Data Guide](https://support.google.com/analytics/answer/13578783?hl=en#zippy=%2Cin-this-article)
 - Transform Data Methods: SQL - You can check SQL code in the folders Table Query (Still Updating)
 - Dashboard link: [Looker Studio Dashboard Link](https://lookerstudio.google.com/u/0/reporting/340387ca-9899-443f-9c5a-ec1888f3738b/page/iJatD) (Outline and visuals are done; only the discrepancy between BigQuery & GA4 data about Engagement Rate, Time on Page, and Time on Session needs to be checked again)
+
+- DA Document: Ongoing
