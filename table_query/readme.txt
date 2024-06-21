@@ -6,9 +6,9 @@ Columns in the Table: User ID, Date, URL, items name, brand, price, quantity, re
 3 - Traffic Table - Section 1 & Section 2 - Done: 
 Columns in the Table: User ID, date, Page name, URL, traffic name, source, medium, Session ID, Country, City, Device, Browser, event name, Transaction ID, is conversion event, page view
 4 - Time Web Table - Section 1 & Section 2 - Ongoing: 
-Columns in the Table: = Traffic Table + Time on Page + Time on Session + Engagement Rate + Bounce Rate 
+Columns in the Table: = Traffic Table + Engaged Session ID + Time on Page + Time on Session + Engagement Rate + Bounce Rate 
 (Still Updating with these metrics: time on page, time on session, engagement rate when joining with the traffic table)
-- Cohort Analysis Table - Section 2 - Ongoing: 
-Columns in the Table: Still updating
+- Cohort Analysis Table - Section 2 - Done: 
+Columns in the Table: User ID, Session ID,Engaged Session ID, Date, traffic name, traffic source, traffic medium, country, city, device, browser, event name, year_week, retention_week 
 ===
 Note about Discrepancy between Big Query & GA4 Data: https://support.google.com/analytics/answer/13578783?hl=en#zippy=%2Cin-this-article
