@@ -11,5 +11,7 @@ Columns in the Table: = Traffic Table + Engaged Session ID + Time on Page + Time
 - Cohort Analysis Table - Section 2 - Done: 
 Columns in the Table: User ID, Session ID,Engaged Session ID, Date, traffic name, traffic source, traffic medium, country, city, device, browser, event name, year_week, retention_week 
 ===
-Note about the Engagement Rate in the Query: If you want an accurate Engagement Rate in the Report, Create a custom calculated field by using this formula in Looker Studio: COUNT_DISTINCT(Engaged Sesion) / COUNT_DISTINCT(Sessions) (Engaged Session is the Engaged Session ID field, Sessions is the Session ID field)
+Note about the Engagement Rate in the Query: If you want an accurate Engagement Rate in the Report, 
+Create a custom calculated field by using this formula in Looker Studio: COUNT_DISTINCT(Engaged Sesion) / COUNT_DISTINCT(Sessions) 
+(Engaged Session is the Engaged Session ID field, Sessions is the Session ID field)
 Note about Discrepancy between Big Query & GA4 Data: https://support.google.com/analytics/answer/13578783?hl=en#zippy=%2Cin-this-article
