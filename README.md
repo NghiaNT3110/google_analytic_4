@@ -6,5 +6,4 @@
 - Discrepancy between Big Query & GA4 Data: [Discrepancy between Event Data Guide](https://support.google.com/analytics/answer/13578783?hl=en#zippy=%2Cin-this-article) & [Differences in session counts](https://support.google.com/analytics/answer/9191807) & [Unique count approximation in Google Analytics](https://developers.google.com/analytics/blog/2022/hll)
 - Transform Data Methods: SQL - You can check SQL code in the folders Table Query (Still Updating)
 - Dashboard link: [Looker Studio Dashboard Link](https://lookerstudio.google.com/u/0/reporting/340387ca-9899-443f-9c5a-ec1888f3738b/page/iJatD) (Outline and visuals are done; only the discrepancy between BigQuery & GA4 data about Engagement Rate, Time on Page, and Time on Session needs to be checked again)
-
-- DA Document: Ongoing
+- DA Document: [Case 4 Document](https://docs.google.com/document/d/1xxNSRvjalUrD3OdPDSYltqy2LV4jfPSkEjiMXYyDdTY)
