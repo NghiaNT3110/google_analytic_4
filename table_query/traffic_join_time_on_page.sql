@@ -57,7 +57,7 @@ SELECT
     END AS transaction_ID,
   COUNTIF(event_name ='page_view') AS page_view,
 FROM
-  `big-query-378507.analytics_402516150.events_*`
+  `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
 GROUP BY ALL 
 ORDER BY page_view DESC
 ),
